@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "clock": "cd clock && deno run -A main.tsx"
+  }
+}
