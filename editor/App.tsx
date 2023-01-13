@@ -8,7 +8,7 @@
 import { h } from "https://esm.sh/preact@10.10.6"
 import { useState } from "https://esm.sh/preact@10.10.6/hooks"
 
-import IconBrandDeno from "./icons/IconBrandDeno.tsx"
+import IconBrandDeno from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/brand-deno.tsx"
 import SidePanel from "./SidePanel.tsx"
 
 import Editor from "./Editor.tsx"

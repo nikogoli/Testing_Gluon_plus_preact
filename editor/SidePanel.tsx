@@ -2,7 +2,7 @@
 import { h, ComponentProps } from "https://esm.sh/preact@10.10.6"
 import { useState, useEffect, StateUpdater } from "https://esm.sh/preact@10.10.6/hooks"
 
-import IconFiles from "./icons/IconFiles.tsx"
+import IconFiles from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/files.tsx"
 
 type PanelProps = {
   setText: StateUpdater<string>,
