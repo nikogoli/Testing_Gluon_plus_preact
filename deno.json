@@ -1,7 +1,8 @@
 {
   "tasks": {
     "clock": "cd clock && deno run -A main.tsx",
-    "editor": "cd editor && deno run -A --watch main.tsx"
+    "editor": "cd editor && deno run -A --watch main.tsx",
+    "book": "cd book && deno run -A --watch main.ts"
   },
   "importMap": "./import_map.json"
 }
