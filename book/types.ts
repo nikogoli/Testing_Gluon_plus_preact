@@ -44,3 +44,13 @@ export type setViewProps = {
   type: "page",
   data: PageProps
 }
+
+
+export type TextNodeInfo = {
+  type: "text",
+  text: string,
+} | {
+  type: "rubi",
+  text: string,
+  rubi: string,
+}
