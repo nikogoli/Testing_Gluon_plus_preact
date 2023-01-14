@@ -2,29 +2,32 @@
 import { h, Fragment, JSX, ComponentProps } from "https://esm.sh/preact@10.10.6"
 
 import { PageProps } from "../types.ts"
-
+import { handle_rubi } from "../utils/text_handler.ts"
 
 function SectionElement(props:{
   section_title:string|null,
   lines:Array<Array<string>>
 }&ComponentProps<"div">){
   const {section_title, lines, ...other} = props
+  const handled = handle_rubi(lines)
   return(
     <div {...other} class={`flex flex-col ${props.class ? props.class : ""}`}>
-      {(section_title) ? <span class="text-xl pl-12">{section_title}</span>  : <Fragment />}
-      { lines.map(texts => {
+      {(section_title) ? <span class="text-xl pr-12">{section_title}</span>  : <Fragment />}
+      { handled.map(lines => {
         return (
           <div class="flex flex-col gap-2">
-            { texts.map(tx => {
-              if (tx.includes("\\")){
-                let new_tx = tx
-                Array.from([...tx.matchAll(/\\u\{(\d\d\d\d)\}/g)]).forEach(([word, point]) => {
-                  new_tx = new_tx.replace(word, String.fromCodePoint(Number(point)))
-                })
-                return (<span>{new_tx}</span>)
-              } else {
-                return (<span>{tx}</span>)
-              }
+            { lines.map(elems => {
+              return (
+                <span>{ 
+                  elems.map(elem => {
+                    if (elem.type == "text"){
+                      return (<span>{elem.text}</span>)
+                    } else {
+                      return (<ruby>{elem.text}<rt>{elem.rubi}</rt></ruby>)
+                    }
+                  })
+                }</span>
+              )
             }) }
           </div>
         )}
