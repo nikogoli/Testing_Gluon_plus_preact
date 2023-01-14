@@ -2,9 +2,9 @@
 import { h } from "https://esm.sh/preact@10.10.6"
 import { useState, useEffect} from "https://esm.sh/preact@10.10.6/hooks"
 
-import { Editor } from "./src/mod.ts"
+import { Editor } from "./monaco_preact/mod.ts"
 //import { Editor } from "https://raw.githubusercontent.com/nikogoli/monaco-fresh/master/src/mod.ts"
-import { CodeEditor } from "./src/types.ts"
+import { CodeEditor } from "./monaco_preact/types.ts"
 
 export default function Monaco(props:{
   text:string,
