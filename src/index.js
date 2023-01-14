@@ -22,6 +22,7 @@ const __dirname = dirname(__filename);
 const browserPaths = ({
   windows: Deno.build.os === 'windows' && {
     chrome: join(Deno.env.get('PROGRAMFILES'), 'Google', 'Chrome', 'Application', 'chrome.exe'),
+    chrome_x86: join(Deno.env.get('PROGRAMFILES(x86)'), 'Google', 'Chrome', 'Application', 'chrome.exe'),
     chrome_canary: join(Deno.env.get('LOCALAPPDATA'), 'Google', 'Chrome SxS', 'Application', 'chrome.exe'),
     edge: join(Deno.env.get('PROGRAMFILES(x86)'), 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
 
