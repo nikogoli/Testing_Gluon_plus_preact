@@ -24,7 +24,7 @@ export async function setHTML(props: setViewProps){
   await Deno.writeTextFile(VIEW_CONFIG.CRIENT_PATH, CLIENT_TS)
 
   const script = await bundle(VIEW_CONFIG.CRIENT_PATH, {allowRemote:true, compilerOptions:{jsxFactory:"preact.h"}}).then(result => result.code)
-
+  await Deno.remove(VIEW_CONFIG.CRIENT_PATH)
 
   const html = renderToString(View({...props, script}))
   if (type == "home"){

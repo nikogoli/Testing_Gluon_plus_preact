@@ -10,16 +10,14 @@ const HEADER_OPTION = {
   'Access-Control-Allow-Origin': 'null'
 }
 
-
 const Text_Info:TextInfo  = await Deno.readTextFile("./static/sango_shu/info.json").then(tx => JSON.parse(tx))
 
 
 const PTRN_idx = new URLPattern({ pathname: '/index/:title' })
 
 
-
 const server = serve( async (req) => {  
-  console.log({url:req.url, pathname: new URL(req.url).pathname})
+  console.log(`[worker] called with: ${req.url}`)
   if (req.url == `http://localhost:${VIEW_CONFIG.PORT}/` && Deno.env.get("ToppageFilePath")){
     const html = await Deno.readTextFile(Deno.env.get("ToppageFilePath")!)
     const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})

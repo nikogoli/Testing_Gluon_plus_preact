@@ -1,8 +1,9 @@
 /** @jsx h */
-import { h, Fragment, JSX, ComponentProps } from "https://esm.sh/preact@10.10.6"
+import { h, Fragment, ComponentProps } from "https://esm.sh/preact@10.10.6"
+import { useEffect, useRef } from "https://esm.sh/preact@10.10.6/hooks"
 
 import { PageProps } from "../types.ts"
-import { handle_rubi } from "../utils/text_handler.ts"
+import { handle_rubi, replace_unicode } from "../utils/text_handler.ts"
 
 function SectionElement(props:{
   section_title:string|null,
@@ -12,7 +13,7 @@ function SectionElement(props:{
   const handled = handle_rubi(lines)
   return(
     <div {...other} class={`flex flex-col ${props.class ? props.class : ""}`}>
-      {(section_title) ? <span class="text-xl pr-12">{section_title}</span>  : <Fragment />}
+      {(section_title) ? <span class="text-xl pt-12 pr-12">{replace_unicode(section_title)}</span>  : <Fragment />}
       { handled.map(lines => {
         return (
           <div class="flex flex-col gap-2">
@@ -38,36 +39,41 @@ function SectionElement(props:{
 
 
 function QuoteElement(props:{lines:Array<Array<string>>}){
+  // ad-hoc
+  const quote_line = props.lines[0][0]
+  const [ line, from ] = quote_line.slice(0,-1).split("（")
   return(
-    <div class="pl-8 py-2 italic flex flex-col gap-4">
-      { props.lines.map(texts => {
-        return (
-          <div class="flex flex-col gap-2">
-            { texts.map(tx => <span>{tx}</span>) }
-          </div>
-        )}
-      )}
+    <div class="pl-8 pt-10 h-[85%] italic flex flex-col gap-2">
+      <span>{line}</span>
+      <span class="self-end not-italic -mb-10"><span>——</span>{from}</span>
     </div>
   )
 }
 
 export default function Page(props:PageProps) {
   const { title, author, lines_data } = props
+  const title_ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (title_ref.current){ title_ref.current.scrollIntoView(false)}
+  },[])
+
   return (
-    <div class="w-full bg-neutral-100 text-orange-900 min-h-screen"
-          style={{"height": "fit-content", "writing-mode": "vertical-rl"}}>
-      <div class="p-6 w-full h-full flex flex-col gap-8 justify-center">
-        <span class="pl-12 w-12 flex gap-4">
-          <span class="flex-1 text-2xl self-center">{title}</span>
-          <span class="self-center pb-12">{author}</span>
+    <div class="bg-neutral-100 text-orange-900 min-h-full"
+          style={{"height": "fit-content", "writing-mode": "vertical-rl"}}
+          onWheel={(ev) => window.scrollBy({left: -ev.deltaY*2, behavior: "smooth"})}>
+      <div class="py-6 px-10 min-w-full h-full flex flex-col gap-10 justify-center">
+        <span class="pl-12 mr-4 w-12 flex gap-4" ref={title_ref}>
+          <span class="flex-1 text-2xl self-center">{replace_unicode(title)}</span>
+          <span class="self-center pb-10">{author}</span>
         </span>
         { lines_data.map(d => {
           if (d.section == "QUOTE"){ return <QuoteElement lines={d.lines} /> }
           else if (d.section == "TOP"){
-            return <SectionElement class={"gap-8 pt-4"} {...{section_title:null, lines:d.lines}}  />
+            return <SectionElement class={"gap-10 pt-4"} {...{section_title:null, lines:d.lines}}  />
           }
           else {
-            return <SectionElement class={"gap-8 pt-4"} {...{section_title:d.section, lines:d.lines}} />
+            return <SectionElement class={"gap-10 pt-4"} {...{section_title:d.section, lines:d.lines}} />
           }
         }) }
       </div>

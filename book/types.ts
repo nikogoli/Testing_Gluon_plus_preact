@@ -30,7 +30,8 @@ export type TextInfo = {
 
 
 export type HomeProps = {
-  titles_data: Array<{title:string, author:string}>
+  titles_data: Array<{title:string, author:string}>,
+  book_info: Omit<TextInfo, "texts_data">
 }
 
 
