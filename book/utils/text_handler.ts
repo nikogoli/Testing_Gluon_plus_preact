@@ -1,13 +1,22 @@
 import { TextNodeInfo } from "../types.ts"
 
 
+export function replace_unicode(line:string){
+  let new_line = line
+  if (new_line.includes("[U+")){
+    Array.from([...new_line.matchAll(/\[U\+(.{4})\]/g)]).forEach(([word, point]) => {
+      new_line = new_line.replace(word, String.fromCodePoint(Number(`0x${point}`)))
+    })
+  }
+  if (new_line.includes("――")){ new_line = new_line.replaceAll("――", "——") }
+  return new_line
+}
+
+
 function handle_lines(lines_list:Array<Array<string>>){
   return lines_list.map(lines => {
     return lines.map(l => {
-      let new_l = l
-      Array.from([...new_l.matchAll(/\[U\+(.{4})\]/g)]).forEach(([word, point]) => {
-        new_l = new_l.replace(word, String.fromCodePoint(Number(`0x${point}`)))
-      })
+      const new_l = replace_unicode(l)
       
       let is_rubi_mode = false
       let target_type:"kanji"|"eigo"|null = null
@@ -33,6 +42,20 @@ function handle_lines(lines_list:Array<Array<string>>){
               LIST.push([word])
               return
             }
+            else if (
+              (target_type=="eigo" && word != "｜" && word.match(/[^a-zA-Z \u{00A1}\u{00BF}-\u{016B}]/mu)) ||
+              (target_type=="kanji" && word != "々" && word.match(/[\u{3000}-\u{301C}\u{3041}-\u{3093}\u{309B}-\u{309E}―「]/mu) )
+            ){
+              if (target_type == "eigo"){
+                LIST.push([" "])
+                LIST.at(-1)!.push(word)
+              } else {
+                LIST.push([word]) 
+              }
+              target_type = null
+              is_rubi_mode = false
+              return
+            }
             else if (word == "｜" || idx == reversed.length -1){
               target_type = null
               is_rubi_mode = false
@@ -40,15 +63,7 @@ function handle_lines(lines_list:Array<Array<string>>){
               LIST.push([])
               return
             }
-            else if (
-              (target_type=="eigo" && word==" ") ||
-              (target_type=="kanji" && word != "々" && word.match(/[\u{3000}-\u{301C}\u{3041}-\u{3093}\u{309B}-\u{309E}―]/mu) )
-            ){
-              target_type = null
-              is_rubi_mode = false
-              LIST.push([word])
-              return
-            } else {
+            else {
               LIST.at(-1)!.push(word)
               return
             }

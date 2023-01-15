@@ -16,11 +16,12 @@ const worker = new Worker(
 
 // ----------------------------
 
-const titles_data  = await Deno.readTextFile("./static/sango_shu/info.json")
+const text_info:TextInfo = await Deno.readTextFile("./static/sango_shu/info.json")
     .then(tx => JSON.parse(tx))
-    .then((jdata:TextInfo) => jdata.texts_data.map(d => {return { title: d.title, author: d.author }}))
+const { texts_data, ...book_info } = text_info
+const titles_data = texts_data.map(d => {return { title: d.title, author: d.author }})
 
-const { file_path } = await setHTML({type: "home", data:{titles_data}})
+const { file_path } = await setHTML({type: "home", data:{titles_data, book_info}})
 
 Deno.env.set("ToppageFilePath", file_path)
 
