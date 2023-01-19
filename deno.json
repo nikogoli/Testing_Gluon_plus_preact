@@ -1,5 +1,6 @@
 {
   "tasks": {
+    "simple": "cd 00A_simplified_clock && deno run -A main.tsx",
     "clock": "cd 01_clock && deno run -A main.ts",
     "editor": "cd 02_editor && deno run -A main.ts",
     "book": "cd 03_book && deno run -A main.ts"
