@@ -59,6 +59,7 @@ export async function setHTML(props: SetViewProps){
       <html>
         <head>
             <meta charSet="utf-8"/>
+            <title>{VIEW_CONFIG.TITLE}</title>
             { (GOOGLE_FONTS && fontlink)
               ? <link href={fontlink} rel="stylesheet"></link>
               : <Fragment></Fragment>

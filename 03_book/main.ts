@@ -47,12 +47,7 @@ const _Browser = await Gluon.open(
   {
     windowSize: VIEW_CONFIG.SIZE,
     forceBrowser: null,
-    onLoad: () => {
-      setTimeout(() => {
-        document.title = "Deno App with Gluon"
-        Object.defineProperty(document, 'title', { get() {}, set() {} })
-      }, 1000)
-    }
+    onLoad: () => {}
   }
 )
 
