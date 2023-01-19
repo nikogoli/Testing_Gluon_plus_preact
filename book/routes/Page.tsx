@@ -5,6 +5,7 @@ import { useEffect, useRef } from "https://esm.sh/preact@10.10.6/hooks"
 import { PageProps } from "../types.ts"
 import { handle_rubi, replace_unicode } from "../utils/text_handler.ts"
 
+
 function SectionElement(props:{
   section_title:string|null,
   lines:Array<Array<string>>
@@ -51,6 +52,15 @@ function QuoteElement(props:{lines:Array<Array<string>>}){
 }
 
 export default function Page(props:PageProps) {
+  if (props.title === null){
+    return (
+      <div class="bg-neutral-100 text-orange-900 min-h-full"
+          style={{"height": "fit-content", "writing-mode": "vertical-rl"}}>
+        <span class="py-6 px-10 text-xl">要求された文書は存在しません</span>
+      </div>
+    )
+  }
+
   const { title, author, lines_data } = props
   const title_ref = useRef<HTMLSpanElement>(null)
 

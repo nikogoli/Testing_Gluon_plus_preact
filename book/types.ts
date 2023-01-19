@@ -1,9 +1,10 @@
 export type ViewConfig = {
   SIZE: [number, number],
   CRIENT_PATH: string,
-  GoogleFonts: Array<string>,
-  TW_CONFIG: Record<string, unknown>,
   PORT: number,
+  USE_WORKER: boolean,
+  GOOGLE_FONTS?: Array<string>,
+  TW_CONFIG?: Record<string, unknown>,
 }
 
 
@@ -29,22 +30,21 @@ export type TextInfo = {
 }
 
 
+export type SetViewProps = {
+  route: string,
+  path: string,
+  save_file: boolean,
+  handler?: () => Record<string, unknown> | Promise<Record<string, unknown>>
+}
+
+
 export type HomeProps = {
   titles_data: Array<{title:string, author:string}>,
   book_info: Omit<TextInfo, "texts_data">
 }
 
 
-export type PageProps = ArticleData
-
-
-export type setViewProps = {
-  type: "home",
-  data: HomeProps
-} | {
-  type: "page",
-  data: PageProps
-}
+export type PageProps = ArticleData | { title: null }
 
 
 export type TextNodeInfo = {

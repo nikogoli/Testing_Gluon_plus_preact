@@ -3,8 +3,17 @@ import { h, JSX } from "https://esm.sh/preact@10.10.6"
 import { useEffect, useRef } from "https://esm.sh/preact@10.10.6/hooks"
 import IconSquareRotated from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/square-rotated.tsx"
 
-import { HomeProps } from "../types.ts"
+import { HomeProps, TextInfo } from "../types.ts"
 import { replace_unicode } from "../utils/text_handler.ts"
+
+
+export async function Handler(): Promise<HomeProps>{
+  const text_info:TextInfo = await Deno.readTextFile("./static/sango_shu/info.json")
+    .then(tx => JSON.parse(tx))
+  const { texts_data, ...book_info } = text_info
+  const titles_data = texts_data.map(d => {return { title: d.title, author: d.author }})
+  return { titles_data, book_info }
+}
 
 
 export default function Home(props:HomeProps) {

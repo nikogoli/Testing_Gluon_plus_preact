@@ -44,7 +44,7 @@ function handle_lines(lines_list:Array<Array<string>>){
             }
             else if (
               (target_type=="eigo" && word != "｜" && word.match(/[^a-zA-Z \u{00A1}\u{00BF}-\u{016B}]/mu)) ||
-              (target_type=="kanji" && word != "々" && word.match(/[\u{3000}-\u{301C}\u{3041}-\u{3093}\u{309B}-\u{309E}―「]/mu) )
+              (target_type=="kanji" && word != "々" && word.match(/[\u{3000}-\u{301C}\u{3041}-\u{3093}\u{309B}-\u{309E}—「]/mu) )
             ){
               if (target_type == "eigo"){
                 LIST.push([" "])

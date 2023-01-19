@@ -1,7 +1,9 @@
 import { serve } from "https://deno.land/std@0.155.0/http/server.ts"
-import { setHTML } from "./setHTML.ts"
-import { VIEW_CONFIG } from "./mod.ts"
-import { TextInfo } from "./types.ts"
+import { walk } from "https://deno.land/std@0.155.0/fs/mod.ts"
+
+import { setHTML } from "./utils/setHTML.tsx"
+import { VIEW_CONFIG } from "./settings.ts"
+import { PageProps, TextInfo } from "./types.ts"
 
 
 const HEADER_OPTION = {
@@ -9,6 +11,19 @@ const HEADER_OPTION = {
   'Access-Control-Allow-Headers': 'Content-Type, Origin',
   'Access-Control-Allow-Origin': 'null'
 }
+
+// ------ Get route files ----------
+const route_files_to_dict = async (dict: Record<string, string>) =>{
+  const file_iteratior = walk("./routes",
+   { maxDepth: 1, match: [/\.tsx$/, /\.jsx$/] }
+  )
+  for await (const fl of file_iteratior){
+    dict[fl.name] = fl.path.replaceAll("\\", "/")
+  }
+  return dict
+}
+const Name2Path_dict = await route_files_to_dict({})
+
 
 const Text_Info:TextInfo  = await Deno.readTextFile("./static/sango_shu/info.json").then(tx => JSON.parse(tx))
 
@@ -24,16 +39,20 @@ const server = serve( async (req) => {
     return new Response(html, {headers, status: 200})
   }
   else if (PTRN_idx.test(req.url)){
-    const title = PTRN_idx.exec(req.url)!.pathname.groups["title"]
-    const data = Text_Info.texts_data.find(d => d.title == decodeURI(title))
-    if (data){
-      const { html } = await setHTML({type: "page", data})
-      const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
-      return new Response(html, {headers, status: 200})
-    } else {
-      const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/pain`})
-      return new Response("", {headers, status: 404, statusText: "No match for queryed title"})
+    const Handler: ()=>PageProps = () => {
+      const title = PTRN_idx.exec(req.url)!.pathname.groups["title"]
+      const data = Text_Info.texts_data.find(d => d.title == decodeURI(title))
+      return data ?? { title: null }
     }
+
+    const { html } = await setHTML({
+      route: "page.tsx",
+      path: Name2Path_dict["page.tsx"],
+      save_file: false,
+      handler: Handler
+    })
+    const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
+    return new Response(html, {headers, status: 200})    
   }
   const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/pain`})
   return new Response("", {headers, status: 404})
