@@ -1,38 +1,33 @@
 /** @jsx h */
-import { h, ComponentProps } from "https://esm.sh/preact@10.10.6"
-import { useState, useEffect, StateUpdater } from "https://esm.sh/preact@10.10.6/hooks"
+import { h, render, ComponentProps } from "https://esm.sh/preact@10.10.6"
+import { useState, useEffect, useRef } from "https://esm.sh/preact@10.10.6/hooks"
+
+import { PanelProps, Hierarchy_x3, ReturndHierarchy } from "../types.ts"
+import { VIEW_CONFIG } from "../settings.ts"
+
 
 import IconFiles from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/files.tsx"
 
-type PanelProps = {
-  setText: StateUpdater<string>,
-  setActiveName: StateUpdater<string>
-}
-
-type Hierarchy = Record<string, null|Record<string, null|Record<string, null>>>
 
 function ListPanel(props:{
-  names: Hierarchy,
+  names: Hierarchy_x3,
   root_name: string,
-  setText: StateUpdater<string>,
-  setActiveName: StateUpdater<string>
-} & ComponentProps<"div">){
+} & PanelProps & ComponentProps<"div">){
 
   const when_clicked = (ev: MouseEvent, name:string) => {
     const func = async () => {
-      const j_data = await fetch(`http://localhost:8080/api/files/${name}`).then(res => res.json())
-      if ("text" in j_data){
-        console.log(j_data.text)
-        props.setText(j_data.text)
-        props.setActiveName(name)
-      } else {
-        console.log(j_data)
-      }
+      await fetch(`http://localhost:${VIEW_CONFIG.PORT}/api/files/${name}`)
+        .then(res => res.text())
+        .then(tx => {
+          props.text_sig.value = tx
+          props.filename_sig.value = name
+        })
+        .catch(_res => window.alert("ファイルが見つかりませんでした"))
     }
     func()
   }
 
-  const arrange_hy = (name:string, hy:null | Hierarchy) => {
+  const arrange_hy = (name:string, hy:null | Hierarchy_x3) => {
     if (hy === null){
       return (
         <button onClick={(ev) => when_clicked(ev, name)}
@@ -66,17 +61,14 @@ function ListPanel(props:{
 
 export default function SidePanel(props:PanelProps) {
   const [is_open, toggleOpen] = useState(false)
-  const [names, setNames] = useState<Hierarchy>({})
-  const [root_name, setRootName] = useState("")
+  const container_ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const func = async () => {
-      const j_data = await fetch("http://localhost:8080/api/files/all").then(res => res.json())
-      if ("names" in j_data && "root" in j_data){
-        setRootName(j_data.root)
-        setNames(j_data.names)
-      } else {
-        console.log(j_data)
+      const j_data:ReturndHierarchy = await fetch(`http://localhost:${VIEW_CONFIG.PORT}/api/files/all`).then(res => res.json())
+      const { root:root_name, names } = j_data
+      if (container_ref.current){
+        render(<ListPanel {...{names, root_name, ...props}} />, container_ref.current)
       }
     }
     func()
@@ -89,8 +81,7 @@ export default function SidePanel(props:PanelProps) {
           <IconFiles class="w-8 h-8" stroke-width={1} />
         </button>
       </div>
-      <div class={`${is_open ? "block" : "hidden"} bg-gray-100`}>
-        <ListPanel {...{names, root_name, ...props}} />
+      <div class={`${is_open ? "block" : "hidden"} bg-gray-100`} ref={container_ref}>
       </div>
     </div>
   )

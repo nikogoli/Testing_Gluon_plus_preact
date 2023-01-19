@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.155.0/http/server.ts"
 import { walk } from "https://deno.land/std@0.155.0/fs/mod.ts"
-import { join, dirname } from "https://deno.land/std@0.171.0/node/path.ts"
+import { dirname } from "https://deno.land/std@0.171.0/node/path.ts"
+
+import { VIEW_CONFIG } from "./settings.ts"
+import { ReturndHierarchy } from "./types.ts"
 
 const HEADER_OPTION = {
   'Access-Control-Allow-Method':  'OPTIONS, GET, POST',
@@ -37,24 +40,29 @@ const server = serve( async (req) => {
   const file_pattern = new URLPattern({ pathname: '/api/files/:name' })
   const save_pattern = new URLPattern({ pathname: '/api/save/:name' })
   let HEADER = new Headers(HEADER_OPTION)
-  const Data: Record<string, unknown> = {}
-
-  if (file_pattern.test(url)){
+  
+  if (req.url == `http://localhost:${VIEW_CONFIG.PORT}/` && Deno.env.get("ToppageFilePath")){
+    const html = await Deno.readTextFile(Deno.env.get("ToppageFilePath")!)
+    const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
+    return new Response(html, {headers, status: 200})
+  }
+  else if (file_pattern.test(url)){
     const { groups } = file_pattern.exec(url)!.pathname
     if ("name" in groups){
-      const {name} = groups
+      const { name } = groups
       if (name == "all"){
-        Data["names"] = hierarchy
-        Data["root"] = BASE_PATH.split("/").at(-1)
+        const Data: ReturndHierarchy = {names :hierarchy, root: BASE_PATH.split("/").at(-1)!}
+        HEADER = new Headers({...HEADER_OPTION, "Content-Type":`application/json`})
+        return new Response(JSON.stringify(Data), {headers: HEADER, status: 200})
       }
       else if (name in name_to_path_dict){
         const tx = await Deno.readTextFile(name_to_path_dict[name])
-        Data["text"] = tx
+        HEADER = new Headers({...HEADER_OPTION, "Content-Type":`text/plain`})
+        return new Response(tx, {headers: HEADER, status: 200})
       }
     }
-
-    HEADER = new Headers({...HEADER_OPTION, "Content-Type":`application/json`})
-    return new Response(JSON.stringify(Data), {headers: HEADER, status: 200})
+    HEADER = new Headers({...HEADER_OPTION, "Content-Type":`text/plain`})
+    return new Response("", {headers: HEADER, status: 404})
   }
   else if (save_pattern.test(url)){
     const { groups } = save_pattern.exec(url)!.pathname
@@ -68,7 +76,7 @@ const server = serve( async (req) => {
     }
   }
   
-  return new Response("", {headers: HEADER, status: 500})
-}, { port: 8080 });
+  return new Response("", {headers: HEADER, status: 404})
+}, { port: VIEW_CONFIG.PORT });
 
 await server
