@@ -42,7 +42,6 @@ export type TextInfo = {
 
 export type SetViewProps = {
   route: string,
-  path: string,
   save_file: boolean,
   handler?: () => Record<string, unknown> | Promise<Record<string, unknown>>
 }

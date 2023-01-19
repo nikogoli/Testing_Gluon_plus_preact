@@ -1,10 +1,9 @@
 import { serve } from "https://deno.land/std@0.155.0/http/server.ts"
-import { walk } from "https://deno.land/std@0.155.0/fs/mod.ts"
 
+import { PageProps, TextInfo } from "./types.ts"
 import { setHTML } from "./utils/setHTML.tsx"
 import { VIEW_CONFIG } from "./settings.ts"
-import { PageProps, TextInfo } from "./types.ts"
-
+const View_Config = (VIEW_CONFIG.USE_WORKER) ? VIEW_CONFIG : {...VIEW_CONFIG, PORT:8088}
 
 const HEADER_OPTION = {
   'Access-Control-Allow-Method':  'OPTIONS, GET, POST',
@@ -12,28 +11,15 @@ const HEADER_OPTION = {
   'Access-Control-Allow-Origin': 'null'
 }
 
-// ------ Get route files ----------
-const route_files_to_dict = async (dict: Record<string, string>) =>{
-  const file_iteratior = walk("./routes",
-   { maxDepth: 1, match: [/\.tsx$/, /\.jsx$/] }
-  )
-  for await (const fl of file_iteratior){
-    dict[fl.name] = fl.path.replaceAll("\\", "/")
-  }
-  return dict
-}
-const Name2Path_dict = await route_files_to_dict({})
-
 
 const Text_Info:TextInfo  = await Deno.readTextFile("./static/sango_shu/info.json").then(tx => JSON.parse(tx))
 
 
 const PTRN_idx = new URLPattern({ pathname: '/index/:title' })
 
-
 const server = serve( async (req) => {  
   console.log(`[worker] called with: ${req.url}`)
-  if (req.url == `http://localhost:${VIEW_CONFIG.PORT}/` && Deno.env.get("ToppageFilePath")){
+  if (req.url == `http://localhost:${View_Config.PORT}/` && Deno.env.get("ToppageFilePath")){
     const html = await Deno.readTextFile(Deno.env.get("ToppageFilePath")!)
     const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
     return new Response(html, {headers, status: 200})
@@ -46,8 +32,7 @@ const server = serve( async (req) => {
     }
 
     const { html } = await setHTML({
-      route: "page.tsx",
-      path: Name2Path_dict["page.tsx"],
+      route: "Page.tsx",
       save_file: false,
       handler: Handler
     })
@@ -56,6 +41,6 @@ const server = serve( async (req) => {
   }
   const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/pain`})
   return new Response("", {headers, status: 404})
-}, { port: VIEW_CONFIG.PORT })
+}, { port: View_Config.PORT })
 
 await server

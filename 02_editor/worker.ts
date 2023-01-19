@@ -2,8 +2,9 @@ import { serve } from "https://deno.land/std@0.155.0/http/server.ts"
 import { walk } from "https://deno.land/std@0.155.0/fs/mod.ts"
 import { dirname } from "https://deno.land/std@0.171.0/node/path.ts"
 
-import { VIEW_CONFIG } from "./settings.ts"
 import { ReturndHierarchy } from "./types.ts"
+import { VIEW_CONFIG } from "./settings.ts"
+const View_Config = (VIEW_CONFIG.USE_WORKER) ? VIEW_CONFIG : {...VIEW_CONFIG, PORT:8088}
 
 const HEADER_OPTION = {
   'Access-Control-Allow-Method':  'OPTIONS, GET, POST',
@@ -41,7 +42,7 @@ const server = serve( async (req) => {
   const save_pattern = new URLPattern({ pathname: '/api/save/:name' })
   let HEADER = new Headers(HEADER_OPTION)
   
-  if (req.url == `http://localhost:${VIEW_CONFIG.PORT}/` && Deno.env.get("ToppageFilePath")){
+  if (req.url == `http://localhost:${View_Config.PORT}/` && Deno.env.get("ToppageFilePath")){
     const html = await Deno.readTextFile(Deno.env.get("ToppageFilePath")!)
     const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
     return new Response(html, {headers, status: 200})
@@ -77,6 +78,6 @@ const server = serve( async (req) => {
   }
   
   return new Response("", {headers: HEADER, status: 404})
-}, { port: VIEW_CONFIG.PORT });
+}, { port: View_Config.PORT });
 
 await server

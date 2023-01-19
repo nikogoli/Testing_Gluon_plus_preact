@@ -2,6 +2,7 @@
 import { h, JSX, Fragment } from "https://esm.sh/preact@10.10.6"
 
 import { win32, resolve } from "https://deno.land/std@0.172.0/path/mod.ts"
+import { walk } from "https://deno.land/std@0.155.0/fs/mod.ts"
 import { bundle } from "https://deno.land/x/emit@0.9.0/mod.ts"
 import { renderToString } from "https://esm.sh/preact-render-to-string@5.2.2"
 
@@ -15,10 +16,32 @@ type RouteMod = {
 }
 
 
+async function route_files_to_dict(dict: Record<string, string>){
+  const file_iteratior = walk("./routes",
+  { maxDepth: 1, match: [/\.tsx$/, /\.jsx$/] }
+  )
+  for await (const fl of file_iteratior){
+    dict[fl.name] = fl.path.replaceAll("\\", "/")
+  }
+  return dict
+}
+
+
 export async function setHTML(props: SetViewProps){
+
+  // ------ Get route files ----------
+  let Name2Path_dict: Record<string, string>
+  if (Deno.env.get("RoutesDict")){
+    Name2Path_dict = JSON.parse(Deno.env.get("RoutesDict")!) as Record<string, string>
+  } else {
+    Name2Path_dict = await route_files_to_dict({})
+    Deno.env.set("RoutesDict", JSON.stringify(Name2Path_dict))
+  }
+
   const raw_name = props.route.split(".")[0]
   const mod_name = raw_name.charAt(0).toUpperCase() + raw_name.slice(1)
-  const MOD = await import(String(win32.toFileUrl(resolve(`./${props.path}`)))) as RouteMod
+  const path = Name2Path_dict[props.route]
+  const MOD = await import(String(win32.toFileUrl(resolve(`./${path}`)))) as RouteMod
 
   const { Handler } = MOD
   let comp_props : null | Record<string, unknown> = null
@@ -36,7 +59,7 @@ export async function setHTML(props: SetViewProps){
   const CLIENT_TS =`
     /** @jsx h */
     import { h, hydrate } from "https://esm.sh/preact@10.10.6"
-    import { default as ${mod_name} } from "./${props.path}"
+    import { default as ${mod_name} } from "./${path}"
     hydrate( <${mod_name} ${comp_props ? `{...${JSON.stringify(comp_props)}}` : ""} />, document.body )
   `
   
