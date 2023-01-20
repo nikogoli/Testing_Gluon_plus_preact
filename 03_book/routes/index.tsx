@@ -7,7 +7,7 @@ import { HomeProps, TextInfo } from "../types.ts"
 import { replace_unicode } from "../utils/text_handler.ts"
 
 
-export async function Handler(): Promise<HomeProps>{
+export async function PropsSetter(): Promise<HomeProps>{
   const text_info:TextInfo = await Deno.readTextFile("./static/sango_shu/info.json")
     .then(tx => JSON.parse(tx))
   const { texts_data, ...book_info } = text_info

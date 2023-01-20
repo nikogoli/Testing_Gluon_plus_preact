@@ -5,9 +5,9 @@ import { signal } from "../utils/signals.js"
 import IconBrandDeno from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/brand-deno.tsx"
 import SidePanel from "../components/SidePanel.tsx"
 import Editor from "../components/Editor.tsx"
-import { HomeProps } from "../types.ts"
 
-export default function App(props:HomeProps){
+
+export default function App(){
 
   const text_sig = signal("function hello() {\n\talert('Hello world!');\n}")
   const filename_sig = signal("ファイル未選択")

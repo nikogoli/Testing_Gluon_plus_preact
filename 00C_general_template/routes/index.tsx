@@ -10,7 +10,7 @@ type AppProps = {
 }
 
 
-export function Handler():AppProps{
+export function PropsSetter():AppProps{
   const count = 5
   const data = [...Array(count)].map((_x, idx) => {
     return { title: `ページその ${idx+1}`, path: `/page/${idx+1}` }

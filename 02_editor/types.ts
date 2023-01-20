@@ -23,7 +23,7 @@ export type ViewConfig = DistMerge<{
 export type SetViewProps = {
   route: string,
   save_file: boolean,
-  handler?: () => Record<string, unknown> | Promise<Record<string, unknown>>
+  props_setter?: () => Record<string, unknown> | Promise<Record<string, unknown>>
 }
 
 

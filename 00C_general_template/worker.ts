@@ -25,7 +25,7 @@ const server = serve( async (req) => {
   
   else if (PTRN_page.test(req.url)){
 
-    const Handler = () => {
+    const PropsSetter = () => {
       const idx = Number(PTRN_page.exec(req.url)!.pathname.groups["idx"])
       const title = `ページその ${idx}`
       const text = `このページは ${idx}番目のページです。`
@@ -35,7 +35,7 @@ const server = serve( async (req) => {
     const { html } = await setHTML({
       route: "page.tsx",
       save_file: false,
-      handler: Handler
+      props_setter: PropsSetter
     })
     const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
     return new Response(html, {headers, status: 200})    

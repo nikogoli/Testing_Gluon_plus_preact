@@ -12,7 +12,7 @@ import { VIEW_CONFIG } from "../settings.ts"
 
 type RouteMod = {
   default: (arg:any)=>JSX.Element,
-  Handler: undefined |( () => Record<string, unknown>)
+  PropsSetter: undefined |( () => Record<string, unknown>)
 }
 
 
@@ -43,17 +43,17 @@ export async function setHTML(props: SetViewProps){
   const path = Name2Path_dict[props.route]
   const MOD = await import(String(win32.toFileUrl(resolve(`./${path}`)))) as RouteMod
 
-  const { Handler } = MOD
+  const { PropsSetter } = MOD
   let comp_props : null | Record<string, unknown> = null
-  if (props.handler){
-    comp_props = (props.handler.constructor.name === 'AsyncFunction')
-        ? await props.handler()
-        : props.handler() as Record<string, unknown>
+  if (props.props_setter){
+    comp_props = (props.props_setter.constructor.name === 'AsyncFunction')
+        ? await props.props_setter()
+        : props.props_setter() as Record<string, unknown>
   }
-  else if (Handler) {
-    comp_props = (Handler.constructor.name === 'AsyncFunction')
-        ? await Handler()
-        : Handler()
+  else if (PropsSetter) {
+    comp_props = (PropsSetter.constructor.name === 'AsyncFunction')
+        ? await PropsSetter()
+        : PropsSetter()
   }
 
   const CLIENT_TS =`

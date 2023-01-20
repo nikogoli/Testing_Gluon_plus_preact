@@ -25,7 +25,7 @@ const server = serve( async (req) => {
     return new Response(html, {headers, status: 200})
   }
   else if (PTRN_idx.test(req.url)){
-    const Handler: ()=>PageProps = () => {
+    const PropsSetter: ()=>PageProps = () => {
       const title = PTRN_idx.exec(req.url)!.pathname.groups["title"]
       const data = Text_Info.texts_data.find(d => d.title == decodeURI(title))
       return data ?? { title: null }
@@ -34,7 +34,7 @@ const server = serve( async (req) => {
     const { html } = await setHTML({
       route: "Page.tsx",
       save_file: false,
-      handler: Handler
+      props_setter: PropsSetter
     })
     const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
     return new Response(html, {headers, status: 200})    
