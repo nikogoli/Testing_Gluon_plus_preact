@@ -1,9 +1,9 @@
 /** @jsx h */
 import { h } from "https://esm.sh/preact@10.10.6"
 
-import IconHome from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/home.tsx"
-import IconSquareArrowLeft from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/square-arrow-left.tsx"
-import IconSquareArrowRight from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/square-arrow-right.tsx"
+import IconHome from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/home.tsx"
+import IconSquareArrowLeft from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/square-arrow-left.tsx"
+import IconSquareArrowRight from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/square-arrow-right.tsx"
 
 
 export default function MovePageButtons(props:{ idx:number }){

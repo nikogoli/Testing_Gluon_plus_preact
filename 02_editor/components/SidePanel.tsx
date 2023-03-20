@@ -6,7 +6,7 @@ import { PanelProps, Hierarchy_x3, ReturndHierarchy } from "../types.ts"
 import { VIEW_CONFIG } from "../settings.ts"
 
 
-import IconFiles from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/files.tsx"
+import IconFiles from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/files.tsx"
 
 
 function ListPanel(props:{

@@ -1,7 +1,7 @@
 /** @jsx h */
 import { h, JSX } from "https://esm.sh/preact@10.10.6"
 import { useEffect, useRef } from "https://esm.sh/preact@10.10.6/hooks"
-import IconSquareRotated from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/square-rotated.tsx"
+import IconSquareRotated from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/square-rotated.tsx"
 
 import { HomeProps, TextInfo } from "../types.ts"
 import { replace_unicode } from "../utils/text_handler.ts"

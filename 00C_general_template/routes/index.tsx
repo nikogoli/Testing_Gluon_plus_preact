@@ -1,8 +1,8 @@
 /** @jsx h */
 import { h } from "https://esm.sh/preact@10.10.6"
 
-import IconBrandDeno from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/brand-deno.tsx"
-import IconFileText from "https://pax.deno.dev/nikogoli/tabler-icons-tsx/tsx/file-text.tsx"
+import IconBrandDeno from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/brand-deno.tsx"
+import IconFileText from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/file-text.tsx"
 
 
 type AppProps = {
