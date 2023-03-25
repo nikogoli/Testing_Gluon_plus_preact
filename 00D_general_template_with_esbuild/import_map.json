@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "preact": "https://esm.sh/preact@10.10.6",
+    "preact/": "https://esm.sh/preact@10.10.6/",
+    "preact-render-to-string": "https://esm.sh/*preact-render-to-string@5.2.4",
+    "@preact/signals": "./utils/signals.js",
+    "tabler_icons_tsx/": "https://deno.land/x/tabler_icons_tsx@0.0.3/"
+  }
+}
