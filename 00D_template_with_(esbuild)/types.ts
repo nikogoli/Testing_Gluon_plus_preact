@@ -8,7 +8,7 @@ type DistMerge<
 export type ViewConfig = DistMerge<{
   TITLE: string,
   SIZE: [number, number],
-  DENOJSON_PATH: string,
+  CRIENT_PATH: string,
   GOOGLE_FONTS?: Array<string>,
   TW_CONFIG?: Record<string, unknown>,
 }, {
