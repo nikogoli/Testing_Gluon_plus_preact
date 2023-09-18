@@ -1,8 +1,9 @@
-/** @jsx h */
-import { h } from "https://esm.sh/preact@10.10.6"
-import * as Gluon from '../gluon_src/index.js'
-import { bundle } from "https://deno.land/x/emit@0.9.0/mod.ts"
-import { renderToString } from "https://esm.sh/preact-render-to-string@5.2.2"
+import * as Gluon from '../../gluon_src/index.js'
+import { renderToString } from "preact-render-to-string"
+
+import { toFileUrl, resolve } from "https://deno.land/std@0.177.0/path/mod.ts"
+import * as esbuild from "https://deno.land/x/esbuild@v0.15.10/mod.js"
+import { denoPlugin } from "https://deno.land/x/esbuild_deno_loader@0.6.0/mod.ts"
 
 import App from "./App.tsx"
 
@@ -13,23 +14,35 @@ const VIEW_CONFIG = {
   SIZE: [600, 400],
   CRIENT_PATH: "./tempClient.tsx"
 }
+const importMapURL = await Deno.readTextFile("deno.json")
+    .then(tx => JSON.parse(tx) as Record<string, string>).then(jdata => toFileUrl(resolve(jdata.importMap)))
 
 
 
 // ------ Bundle -------
-const CLIENT_TS =`
-  /** @jsx h */
-  import { h, hydrate } from "https://esm.sh/preact@10.10.6"
+const CLIENT_TS =`\
+  import { hydrate } from "https://esm.sh/preact@10.10.6"
   import App from "./App.tsx"
   hydrate( <App />, document.body )
 `
 
 await Deno.writeTextFile(VIEW_CONFIG.CRIENT_PATH, CLIENT_TS)
 
-const script = await bundle(VIEW_CONFIG.CRIENT_PATH, {allowRemote:true, compilerOptions:{jsxFactory:"preact.h"}}).then(result => result.code)
+esbuild.initialize({})
+const script = await esbuild.build({
+  plugins: [denoPlugin({importMapURL})],
+  entryPoints: {main: toFileUrl(resolve(VIEW_CONFIG.CRIENT_PATH)).href},
+  bundle: true,
+  format: "esm",
+  platform: "neutral",
+  outfile: "bundled.js",
+  jsx: "automatic",
+  jsxImportSource: "preact",
+}).then(_result => Deno.readTextFile("./bundled.js"))
+esbuild.stop()
 
 await Deno.remove(VIEW_CONFIG.CRIENT_PATH)
-
+await Deno.remove("./bundled.js")
 
 
 // ------ Define root component ------

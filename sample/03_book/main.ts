@@ -1,4 +1,4 @@
-import * as Gluon from '../gluon_src/index.js'
+import * as Gluon from '../../gluon_src/index.js'
 import { join, dirname } from "https://deno.land/std@0.171.0/node/path.ts"
 
 import { setHTML } from "./utils/setHTML.tsx"
