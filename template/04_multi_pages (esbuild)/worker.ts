@@ -1,8 +1,6 @@
-import { serve } from "https://deno.land/x/sift@0.6.0/mod.ts"
-import { contentType } from "https://deno.land/std@0.177.0/media_types/mod.ts"
-import { blue, green, yellow } from "https://deno.land/std@0.177.0/fmt/colors.ts"
-
+import { serve } from "./utils/router.ts"
 import { setHTML } from "./utils/setHTML.tsx"
+import { contentType } from "https://deno.land/std@0.177.0/media_types/mod.ts"
 import { VIEW_CONFIG } from "./settings.ts"
 
 const HEADER_OPTION = {
@@ -12,48 +10,41 @@ const HEADER_OPTION = {
 }
 
 
-const log_url = (req:Request, str?:string) => console.log(`[${blue("worker")}] called with: ${green(req.url)}`, str ?? "")
-const response404 = (req:Request) => {
-  log_url(req, yellow("404"))
-  const headers = new Headers({...HEADER_OPTION, "Content-Type":contentType("text/plain")})
-  return new Response("", {headers, status: 404})
+const PAGE_PATHS: Array<string> = []
+for (const fl of Deno.readDirSync("./static/pagedata")){
+  PAGE_PATHS.push(`./static/pagedata/${fl.name}`)
 }
+const MAX_LEN = PAGE_PATHS.length
+
 
 serve({ 
-  "/": async (req) => {
-    if (Deno.env.get("ToppageFilePath")){
-      log_url(req)
-      const html = await Deno.readTextFile(Deno.env.get("ToppageFilePath")!)
-      const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
-      return new Response(html, {headers, status: 200})
-    } else {
-      return response404(req)
-    }
+  "/": async (_req) => {
+    const html = await Deno.readTextFile(Deno.env.get("ToppageFilePath")!)
+    const headers = new Headers({...HEADER_OPTION, "Content-Type":contentType("text/html")})
+    return new Response(html, {headers, status: 200})
   },
 
-  "/page/:idx": async (req, _conn, param) => {
-    if (param){
-      log_url(req)
-      const PropsSetter = () => {
-        const idx = Number(param.idx)
-        const title = `ページその ${idx}`
-        const text = `このページは ${idx}番目のページです。`
-        return { title, text, idx }
-      }
-  
-      const { html } = await setHTML({
-        route: "page.tsx",
-        save_file: false,
-        props_setter: PropsSetter,
-        import_map_url: Deno.env.get("import_map_url")
-      })
-      const headers = new Headers({...HEADER_OPTION, "Content-Type":`text/html`})
-      return new Response(html, {headers, status: 200})
-    } else {
-      return response404(req)
-    }
+
+  "/page/:page_idx": async (_req, params) => {
+    const page_idx = Number(params!["page_idx"]!)
+    const path = PAGE_PATHS.at(page_idx-1)!
+    const title = path.split("/").at(-1)!.split(".")[0]
+    const text = await Deno.readTextFile(path)
+
+    const { html } = await setHTML({
+      route: "page.tsx",
+      save_file: false,
+      props_setter: () => {return { info: {title, text, page_idx}, max_len: MAX_LEN }},
+      import_map_url: Deno.env.get("import_map_url")
+    })
+    const headers = new Headers({...HEADER_OPTION, "Content-Type":contentType("html")})
+    return new Response(html, {headers, status: 200})
   },
 
-  404: (req) => { return response404(req) }
 
-}, { port: VIEW_CONFIG.PORT ?? 8000 })
+  404: (_req) => {
+    const headers = new Headers({...HEADER_OPTION, "Content-Type":contentType("text/plain")})
+    return new Response("", {headers, status: 404})
+  }
+
+}, { port: VIEW_CONFIG.PORT })

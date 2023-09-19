@@ -15,7 +15,8 @@ const VIEW_CONFIG = {
   CRIENT_PATH: "./tempClient.tsx"
 }
 const importMapURL = await Deno.readTextFile("deno.json")
-    .then(tx => JSON.parse(tx) as Record<string, string>).then(jdata => toFileUrl(resolve(jdata.importMap)))
+    .then(tx => JSON.parse(tx) as Record<string, string>)
+    .then(jdata => toFileUrl(resolve(jdata.importMap)))
 
 
 

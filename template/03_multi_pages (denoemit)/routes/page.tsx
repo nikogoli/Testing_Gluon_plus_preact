@@ -3,16 +3,19 @@ import { h } from "https://esm.sh/preact@10.10.6"
 
 import MovePageButtons from "../components/MovePageButtons.tsx"
 
+import { PageProps } from "../types.ts"
 
-export default function Page(props:{title: string, text: string, idx:number}) {
+
+export default function Page(props: PageProps) {
+  const {title, text} = props.info
   
   return (
     <div class="h-screen p-8 flex flex-col gap-4">
       <div class="flex pb-4">
-        <span class="text-3xl flex-1">{props.title}</span>
-        <MovePageButtons {...{idx: props.idx}} />
+        <span class="text-3xl flex-1">{title}</span>
+        <MovePageButtons {...props} />
       </div>
-      <span>{props.text}</span>
+      <span>{text}</span>
     </div>
   )
 }

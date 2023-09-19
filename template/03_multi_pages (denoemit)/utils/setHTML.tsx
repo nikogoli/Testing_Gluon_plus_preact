@@ -1,27 +1,28 @@
 /** @jsx h */
 import { h, JSX, Fragment } from "https://esm.sh/preact@10.10.6"
-
-import { win32, resolve } from "https://deno.land/std@0.172.0/path/mod.ts"
-import { walk } from "https://deno.land/std@0.155.0/fs/mod.ts"
-import { bundle } from "https://deno.land/x/emit@0.9.0/mod.ts"
 import { renderToString } from "https://esm.sh/preact-render-to-string@5.2.2"
+
+import { toFileUrl, resolve } from "https://deno.land/std@0.177.0/path/mod.ts"
+
+import { bundle } from "https://deno.land/x/emit@0.9.0/mod.ts"
 
 import { SetViewProps } from "../types.ts"
 import { VIEW_CONFIG } from "../settings.ts"
+import { HeaderHTML } from "./HeaderHTML.tsx"
 
 
 type RouteMod = {
-  default: (arg:any)=>JSX.Element,
-  PropsSetter: undefined |( () => Record<string, unknown>)
+  default: (props:Record<string, unknown>) => JSX.Element,
+  PropsSetter?: ( () => Record<string, unknown>) | ( () => Promise<Record<string, unknown>>)
 }
 
 
-async function route_files_to_dict(dict: Record<string, string>){
-  const file_iteratior = walk("./routes",
-  { maxDepth: 1, match: [/\.tsx$/, /\.jsx$/] }
-  )
-  for await (const fl of file_iteratior){
-    dict[fl.name] = fl.path.replaceAll("\\", "/")
+async function route_files_to_dict(){
+  const dict: Record<string, string> = {}
+  for await (const fl of Deno.readDir("./routes")){
+    if (fl.name.endsWith(".tsx") || fl.name.endsWith(".jsx")){
+      dict[fl.name] = `./routes/${fl.name}`
+    }
   }
   return dict
 }
@@ -34,27 +35,20 @@ export async function setHTML(props: SetViewProps){
   if (Deno.env.get("RoutesDict")){
     Name2Path_dict = JSON.parse(Deno.env.get("RoutesDict")!) as Record<string, string>
   } else {
-    Name2Path_dict = await route_files_to_dict({})
+    Name2Path_dict = await route_files_to_dict()
     Deno.env.set("RoutesDict", JSON.stringify(Name2Path_dict))
   }
 
   const raw_name = props.route.split(".")[0]
   const mod_name = raw_name.charAt(0).toUpperCase() + raw_name.slice(1)
-  const path = Name2Path_dict[props.route]
-  const MOD = await import(String(win32.toFileUrl(resolve(`./${path}`)))) as RouteMod
 
-  const { PropsSetter } = MOD
-  let comp_props : null | Record<string, unknown> = null
-  if (props.props_setter){
-    comp_props = (props.props_setter.constructor.name === 'AsyncFunction')
-        ? await props.props_setter()
-        : props.props_setter() as Record<string, unknown>
-  }
-  else if (PropsSetter) {
-    comp_props = (PropsSetter.constructor.name === 'AsyncFunction')
-        ? await PropsSetter()
-        : PropsSetter()
-  }
+  const path = Name2Path_dict[props.route]
+  const MOD = await import(toFileUrl(resolve(`./${path}`)).href) as RouteMod
+
+  const comp_props = (props.props_setter)
+      ? await props.props_setter()
+      : (MOD.PropsSetter) ? await MOD.PropsSetter()
+      : null
 
   const CLIENT_TS =`
     /** @jsx h */
@@ -71,30 +65,12 @@ export async function setHTML(props: SetViewProps){
   const ActiveComp = MOD.default
 
   function View(){  
-    const { GOOGLE_FONTS, TW_CONFIG } = VIEW_CONFIG
-    const fontlink = (GOOGLE_FONTS)
-      ? GOOGLE_FONTS.reduce((txt, f) => txt+`family=${f.replaceAll(" ", "+")}&`, "https://fonts.googleapis.com/css2?") + "display=swap"
-      : null
-
+    const { GOOGLE_FONTS } = VIEW_CONFIG
     const props = comp_props ? comp_props : {}
   
     return(
       <html>
-        <head>
-            <meta charSet="utf-8"/>
-            <title>{VIEW_CONFIG.TITLE}</title>
-            { (GOOGLE_FONTS && fontlink)
-              ? <link href={fontlink} rel="stylesheet"></link>
-              : <Fragment></Fragment>
-            }
-            <script type="module" src="https://cdn.skypack.dev/twind/shim"></script>
-            { (TW_CONFIG)
-              ? <script type="twind-config" dangerouslySetInnerHTML={{__html: JSON.stringify(TW_CONFIG)}}></script>
-              : <Fragment></Fragment>
-            }
-            <script type="module" dangerouslySetInnerHTML={{__html: script}}></script>
-            <style> {`button:focus { outline-style: none !important}`} </style>
-        </head>
+        <HeaderHTML script={script}/>
         <body>
           <ActiveComp {...props}/>
           { (GOOGLE_FONTS)

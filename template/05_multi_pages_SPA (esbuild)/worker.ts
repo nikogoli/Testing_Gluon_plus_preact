@@ -39,4 +39,4 @@ serve({
     return new Response("", {headers, status: 404})
   }
 
-}, { port: VIEW_CONFIG.PORT ?? 8000 })
+}, { port: VIEW_CONFIG.PORT })

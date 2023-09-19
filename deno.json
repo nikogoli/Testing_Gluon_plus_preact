@@ -6,6 +6,7 @@
     "template_simple": "cd ./template/'01_simple_clock (denoemit)' && deno run -A main.tsx",
     "template_simple_es": "cd ./template/'02_simple_clock (esbuild)' && deno run -A main.tsx",
     "template_multi": "cd ./template/'03_multi_pages (denoemit)' && deno run -A main.ts",
-    "template_multi_es": "cd ./template/'04_multi_pages (esbuild)' && deno run -A main.ts"
+    "template_multi_es": "cd ./template/'04_multi_pages (esbuild)' && deno run -A main.ts",
+    "template_multi_SPA": "cd ./template/'05_multi_pages_SPA (esbuild)' && deno run -A main.ts"
   }
 }
