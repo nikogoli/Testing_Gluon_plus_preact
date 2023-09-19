@@ -18,30 +18,28 @@ export async function PropsSetter():Promise<AppProps>{
 
 
 export default function App(props:AppProps){
-  const [info, setInfo] = useState({page_idx: 0, title: "", text: ""})
+  const ini_info = {page_idx: 0, title: "", text: ""}
+  const [info, setInfo] = useState(ini_info)
 
   useNavigation((ev:Parameters<Parameters<typeof useNavigation>[0]>[0]) => {
     const func = async () => {
       if (ev.navigationType == "traverse"){
-        const dest_state = ev.currentTarget!.currentEntry!.getState() as Info
+        const dest_state = ev.currentTarget!.currentEntry!.getState() ?? ini_info as Info
         setInfo(dest_state)
         return undefined
       }
 
       const { url } = ev.destination
       if (new URLPattern({pathname:"/home"}).test(url)){
-        setInfo({page_idx: 0, title: "", text: ""})
-        navigation.updateCurrentEntry({ state: {page_idx: 0, title: "", text: ""} })
-      }
-      else if (new URLPattern({pathname:"/page/:idx"}).test(url)){
-        const idx = new URLPattern({pathname:"/page/:idx"}).exec(url)!.pathname.groups["idx"]!
-        await fetch(`/page/${idx}`)
-          .then(res => res.json() as Promise<{title: string, text:string}>)
-          .then(jdata => {
-            const { title, text } = jdata
-            setInfo({page_idx: Number(idx), title, text})
-            navigation.updateCurrentEntry({ state: {page_idx: Number(idx), title, text} })
-          })
+        setInfo(ini_info)
+        navigation.updateCurrentEntry({ state: ini_info })
+      } else {
+        await fetch(url)
+        .then(res => res.json() as Promise<Info>)
+        .then(jdata => {
+          setInfo(jdata)
+          navigation.updateCurrentEntry({ state: jdata })
+        })
       }
       return undefined
     }

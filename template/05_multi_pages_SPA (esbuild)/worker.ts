@@ -24,13 +24,13 @@ serve({
   },
 
 
-  "/page/:idx": async (_req, params) => {
-    const idx = Number(params!["idx"]!)
-    const path = PAGE_PATHS.at(idx-1)!
+  "/page/:page_idx": async (_req, params) => {
+    const page_idx = Number(params!["page_idx"]!)
+    const path = PAGE_PATHS.at(page_idx-1)!
     const title = path.split("/").at(-1)!.split(".")[0]
     const text = await Deno.readTextFile(path)
     const headers = new Headers({...HEADER_OPTION, "Content-Type":contentType("application/json")})
-    return new Response(JSON.stringify({title, text}), {headers, status: 200})
+    return new Response(JSON.stringify({page_idx, title, text}), {headers, status: 200})
   },
 
 
