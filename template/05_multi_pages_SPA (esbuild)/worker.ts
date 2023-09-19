@@ -1,5 +1,5 @@
 import { serve } from "./utils/router.ts"
-import { contentType } from "https://deno.land/std@0.177.0/media_types/mod.ts"
+import { contentType } from "https://deno.land/std@0.200.0/media_types/mod.ts"
 
 import { VIEW_CONFIG } from "./settings.ts"
 

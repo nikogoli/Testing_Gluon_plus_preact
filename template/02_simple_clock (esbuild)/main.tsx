@@ -1,7 +1,7 @@
 import * as Gluon from '../../gluon_src/index.js'
 import { renderToString } from "preact-render-to-string"
 
-import { toFileUrl, resolve } from "https://deno.land/std@0.177.0/path/mod.ts"
+import { toFileUrl, resolve } from "https://deno.land/std@0.200.0/path/mod.ts"
 import * as esbuild from "https://deno.land/x/esbuild@v0.15.10/mod.js"
 import { denoPlugin } from "https://deno.land/x/esbuild_deno_loader@0.6.0/mod.ts"
 
