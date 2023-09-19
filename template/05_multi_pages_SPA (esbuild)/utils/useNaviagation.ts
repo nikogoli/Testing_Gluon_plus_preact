@@ -1,12 +1,9 @@
 import { useEffect } from "preact/hooks"
-import {
-  NavigationEvent,
-  NavigationInterceptOptions,
-} from "./navigation_api.d.ts"
+import { NavigationEvent } from "./navigation_api.d.ts"
 
 
 export default function useNavigation(
-  get_handler: (ev:NavigationEvent) => NavigationInterceptOptions["handler"]
+  handler_func: (ev:NavigationEvent) => Promise<undefined>
 ){
   useEffect(() => {
     const navi = window.navigation
@@ -20,7 +17,8 @@ export default function useNavigation(
       ){
           return
       }
-      ev.intercept({ handler: get_handler((ev as NavigationEvent)) })
+      const handler = () => handler_func(ev as NavigationEvent)
+      ev.intercept({ handler })
       console.log(ev)
     })
   }, [])

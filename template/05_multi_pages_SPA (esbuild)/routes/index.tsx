@@ -21,29 +21,24 @@ export default function App(props:AppProps){
   const ini_info = {page_idx: 0, title: "", text: ""}
   const [info, setInfo] = useState(ini_info)
 
-  useNavigation((ev:Parameters<Parameters<typeof useNavigation>[0]>[0]) => {
-    const func = async () => {
-      if (ev.navigationType == "traverse"){
-        const dest_state = ev.currentTarget!.currentEntry!.getState() ?? ini_info as Info
-        setInfo(dest_state)
-        return undefined
-      }
-
-      const { url } = ev.destination
-      if (new URLPattern({pathname:"/home"}).test(url)){
-        setInfo(ini_info)
-        navigation.updateCurrentEntry({ state: ini_info })
-      } else {
-        await fetch(url)
-        .then(res => res.json() as Promise<Info>)
-        .then(jdata => {
-          setInfo(jdata)
-          navigation.updateCurrentEntry({ state: jdata })
-        })
-      }
+  useNavigation(async (ev:Parameters<Parameters<typeof useNavigation>[0]>[0]) => {
+    if (ev.navigationType == "traverse"){
+      const dest_state = (ev.currentTarget!.currentEntry!.getState() ?? ini_info) as Info
+      setInfo(dest_state)
       return undefined
     }
-    return func
+
+    const { url } = ev.destination
+    let state_data: Info
+    if (new URLPattern({pathname:"/home"}).test(url)){
+      state_data = ini_info
+    } else {
+      state_data = await fetch(url).then(res => res.json() as Promise<Info>)
+    }
+    setInfo(state_data)
+    navigation.updateCurrentEntry({ state: state_data })
+
+    return undefined
   })
 
   return (
