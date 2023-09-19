@@ -4,7 +4,7 @@
 
 ### Usage
 1. このレポジトリをクローン/ダウンロードする
-1. `deno task clock`
+1. `deno task sample_clock`
 
 
 ![](https://storage.googleapis.com/zenn-user-upload/0656fbc4fbb0-20230107.gif)
