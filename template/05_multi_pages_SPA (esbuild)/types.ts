@@ -24,7 +24,7 @@ export type AppProps = {
 }
 
 
-type Info = {page_idx:number, title: string, text:string}
+export type Info = {page_idx:number, title: string, text:string}
 
 
 export type HomeProps = {

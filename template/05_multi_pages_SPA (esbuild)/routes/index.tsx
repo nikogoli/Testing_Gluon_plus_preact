@@ -3,7 +3,7 @@ import { useState } from "preact/hooks"
 import Home from "./inner/home.tsx"
 import Page from "./inner/page.tsx"
 
-import { AppProps } from "../types.ts"
+import { AppProps, Info } from "../types.ts"
 import useNavigation from "../utils/useNaviagation.ts"
 
 
@@ -22,9 +22,16 @@ export default function App(props:AppProps){
 
   useNavigation((ev:Parameters<Parameters<typeof useNavigation>[0]>[0]) => {
     const func = async () => {
+      if (ev.navigationType == "traverse"){
+        const dest_state = ev.currentTarget!.currentEntry!.getState() as Info
+        setInfo(dest_state)
+        return undefined
+      }
+
       const { url } = ev.destination
       if (new URLPattern({pathname:"/home"}).test(url)){
         setInfo({page_idx: 0, title: "", text: ""})
+        navigation.updateCurrentEntry({ state: {page_idx: 0, title: "", text: ""} })
       }
       else if (new URLPattern({pathname:"/page/:idx"}).test(url)){
         const idx = new URLPattern({pathname:"/page/:idx"}).exec(url)!.pathname.groups["idx"]!
@@ -33,6 +40,7 @@ export default function App(props:AppProps){
           .then(jdata => {
             const { title, text } = jdata
             setInfo({page_idx: Number(idx), title, text})
+            navigation.updateCurrentEntry({ state: {page_idx: Number(idx), title, text} })
           })
       }
       return undefined
