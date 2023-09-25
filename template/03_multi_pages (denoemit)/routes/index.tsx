@@ -1,5 +1,6 @@
 /** @jsx h */
 import { h } from "https://esm.sh/preact@10.10.6"
+import { useEffect } from "https://esm.sh/preact@10.10.6/hooks"
 
 import IconBrandDeno from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/brand-deno.tsx"
 import IconFileText from "https://pax.deno.dev/nikogoli/tabler_icons_tsx@0.0.3/tsx/file-text.tsx"
@@ -18,6 +19,12 @@ export async function PropsSetter():Promise<AppProps>{
 
 
 export default function App(props: AppProps){
+
+  useEffect(()=>{
+    self.window.addEventListener("beforeunload", (event) => {
+      fetch(`/signal/unload`)
+    })
+  },[])
 
   return (
     <div class={`h-screen grid gap-6 place-content-center justify-items-center`}>

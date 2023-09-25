@@ -24,6 +24,13 @@ serve({
     return new Response(html, {headers, status: 200})
   },
 
+  "/signal/unload": (_req) => {
+    //console.log("post")
+    postMessage("unload")
+    const headers = new Headers({...HEADER_OPTION, "Content-Type":contentType("text/plain")})
+    return new Response("unload-OK", {headers, status: 200})
+  },
+
 
   "/page/:page_idx": async (_req, params) => {
     const page_idx = Number(params!["page_idx"]!)

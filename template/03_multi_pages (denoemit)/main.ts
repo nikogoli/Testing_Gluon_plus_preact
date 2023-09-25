@@ -6,12 +6,12 @@ import { VIEW_CONFIG } from "./settings.ts"
 
 
 // ------- Set Web worker ----------
-if (VIEW_CONFIG.USE_WORKER){
-  const _worker = new Worker(
+const myWorker = (VIEW_CONFIG.USE_WORKER)
+  ? new Worker(
     join(dirname(import.meta.url), "worker.ts"),
     { type: "module" },
   )
-}
+  : null
 
 
 
@@ -29,7 +29,7 @@ if (VIEW_CONFIG.USE_WORKER){
 
 
 // ------- Start Gluon ---------
-const _Browser = await Gluon.open(
+const Browser = await Gluon.open(
   (VIEW_CONFIG.USE_WORKER) ? `http://localhost:${VIEW_CONFIG.PORT}/` : file_path,
   {
     windowSize: VIEW_CONFIG.SIZE,
@@ -38,4 +38,21 @@ const _Browser = await Gluon.open(
   }
 )
 
-//worker.terminate()
+if (myWorker && Browser){
+  myWorker.addEventListener("message", async (msg)=>{
+    if (msg.data == "unload"){
+      console.log("check")
+      try {
+        await Browser.cdp.send(`Browser.getVersion`)  
+      } catch (error) {
+        if (String(error).includes("not OPEN")){
+          Browser.close()
+          myWorker.terminate()
+          Deno.exit()
+        } else {
+          throw error
+        }
+      }
+    }
+  })
+}

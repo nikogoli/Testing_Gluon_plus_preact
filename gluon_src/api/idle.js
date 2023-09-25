@@ -133,9 +133,17 @@ export default async (CDP, { browserType }) => {
   const screenshotInterval = setInterval(async () => {
     if (takingScreenshot) return;
 
-    takingScreenshot = true;
-    lastScreenshot = await getScreenshot();
-    takingScreenshot = false;
+    try {
+      takingScreenshot = true;
+      lastScreenshot = await getScreenshot();
+      takingScreenshot = false;  
+    } catch (error) {
+      if (String(error).includes("not OPEN")){
+        log('ws is not OPEN; stop Screenshot interval')
+        clearInterval(screenshotInterval)
+      }
+      else { throw error }
+    }
   }, 10000);
 
   getScreenshot().then(x => lastScreenshot = x);
